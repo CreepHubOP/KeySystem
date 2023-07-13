@@ -1,0 +1,377 @@
+repeat
+    wait()
+until game:IsLoaded()
+print("CreepHub - Keysystem")
+
+local KeySystemUI = { Closed = false }
+local UIMade = false;
+
+local UserInputService = game:GetService("UserInputService")
+local CoreGUI = game:GetService("CoreGui")
+local HttpService = game:GetService("HttpService")
+local httprequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
+local HIDEUI = get_hidden_gui or gethui
+if syn and typeof(syn) == "table" and RenderWindow then
+	syn.protect_gui = gethui;
+end
+
+local RemoveStringsInvite = {"discord.gg","discord.com/invite"}
+local function JoinDiscord(DiscordInvite)
+	if httprequest then
+		for _,v in pairs(RemoveStringsInvite) do
+			DiscordInvite = string.gsub(DiscordInvite, "https://", "")
+			DiscordInvite = string.gsub(DiscordInvite, "http://", "")
+			DiscordInvite = string.gsub(DiscordInvite, v.."/", "")
+			DiscordInvite = string.gsub(DiscordInvite, v, "")
+		end
+		httprequest({
+			Url = "http://127.0.0.1:6463/rpc?v=1",
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json",
+				["Origin"] = "https://discord.com"
+			},
+			Body = HttpService:JSONEncode({
+				cmd = "INVITE_BROWSER",
+				args = {
+					code = DiscordInvite
+				},
+				nonce = HttpService:GenerateGUID(false)
+			}),
+		})
+	end
+end
+local function Validate(Values, options)
+	for i,v in pairs(Values) do
+		if options[i] == nil then
+			options[i] = v
+		end
+	end
+
+	return options
+end
+local function Hide_UI(gui)
+	if HIDEUI then
+		gui["Parent"] = HIDEUI()
+	elseif (not is_sirhurt_closure) and (syn and syn.protect_gui) then
+		syn.protect_gui(gui)
+		gui["Parent"] = CoreGUI
+	elseif CoreGUI:FindFirstChild('RobloxGui') then
+		gui["Parent"] = CoreGUI.RobloxGui
+	else
+		gui["Parent"] = CoreGUI
+	end
+end
+local function MakeDraggable(gui)
+	local dragging
+	local dragInput
+	local dragStart
+	local startPos
+	local function update(input)
+		local delta = input.Position - dragStart
+		gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+	gui.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			dragStart = input.Position
+			startPos = gui.Position
+
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
+	gui.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			dragInput = input
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if input == dragInput and dragging then
+			update(input)
+		end
+	end)
+end
+
+local function MakeUi(applicationName, name, info, discordInvite)
+	if UIMade == true then return end
+	UIMade = true
+
+	local KeySystem = Instance.new("ScreenGui")
+	KeySystem.Name = "KeySystem"
+	KeySystem.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	KeySystem.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+	local Background = Instance.new("Frame")
+	Background.Name = "Background"
+	Background.Parent = KeySystem
+	Background.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
+	Background.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Background.BorderSizePixel = 0
+	Background.Position = UDim2.new(0.342301905, 0, 0.325545162, 0)
+	Background.Size = UDim2.new(0, 422, 0, 223)
+
+	local UICorner = Instance.new("UICorner")
+	UICorner.Parent = Background
+
+	local DropShadow = Instance.new("ImageLabel")
+	DropShadow.Name = "DropShadow"
+	DropShadow.Parent = Background
+	DropShadow.AnchorPoint = Vector2.new(0.5, 0.5)
+	DropShadow.BackgroundTransparency = 1.000
+	DropShadow.BorderSizePixel = 0
+	DropShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+	DropShadow.Size = UDim2.new(1, 47, 1, 47)
+	DropShadow.ZIndex = 0
+	DropShadow.Image = "rbxassetid://6014261993"
+	DropShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+	DropShadow.ImageTransparency = 0.500
+	DropShadow.ScaleType = Enum.ScaleType.Slice
+	DropShadow.SliceCenter = Rect.new(49, 49, 450, 450)
+
+	local EnterKey = Instance.new("TextBox")
+	EnterKey.Name = "EnterKey"
+	EnterKey.Parent = Background
+	EnterKey.BackgroundColor3 = Color3.fromRGB(36, 36, 36)
+	EnterKey.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	EnterKey.BorderSizePixel = 0
+	EnterKey.Position = UDim2.new(0.189573318, 0, 0.282511204, 0)
+	EnterKey.Size = UDim2.new(0, 259, 0, 28)
+	EnterKey.Font = Enum.Font.Gotham
+	EnterKey.PlaceholderColor3 = Color3.fromRGB(255, 255, 255)
+	EnterKey.PlaceholderText = "Enter Key"
+	EnterKey.Text = ""
+	EnterKey.TextColor3 = Color3.fromRGB(0, 0, 0)
+	EnterKey.TextSize = 15.000
+	EnterKey.TextWrapped = true
+
+	local UICorner_2 = Instance.new("UICorner")
+	UICorner_2.CornerRadius = UDim.new(0, 4)
+	UICorner_2.Parent = EnterKey
+
+	local Checkey = Instance.new("TextButton")
+	Checkey.Name = "Checkey"
+	Checkey.Parent = Background
+	Checkey.BackgroundColor3 = Color3.fromRGB(36, 36, 36)
+	Checkey.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Checkey.BorderSizePixel = 0
+	Checkey.Position = UDim2.new(0.187203795, 0, 0.475336313, 0)
+	Checkey.Size = UDim2.new(0, 125, 0, 30)
+	Checkey.Font = Enum.Font.Gotham
+	Checkey.Text = "Check Key"
+	Checkey.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Checkey.TextSize = 14.000
+
+	local UICorner_3 = Instance.new("UICorner")
+	UICorner_3.Parent = Checkey
+
+	local GetKey = Instance.new("TextButton")
+	GetKey.Name = "GetKey"
+	GetKey.Parent = Background
+	GetKey.BackgroundColor3 = Color3.fromRGB(36, 36, 36)
+	GetKey.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	GetKey.BorderSizePixel = 0
+	GetKey.Position = UDim2.new(0.504739344, 0, 0.475336313, 0)
+	GetKey.Size = UDim2.new(0, 125, 0, 30)
+	GetKey.Font = Enum.Font.Gotham
+	GetKey.Text = "Get Key"
+	GetKey.TextColor3 = Color3.fromRGB(255, 255, 255)
+	GetKey.TextSize = 14.000
+
+	local UICorner_4 = Instance.new("UICorner")
+	UICorner_4.Parent = GetKey
+
+	local Info = Instance.new("TextLabel")
+	Info.Name = "Info"
+	Info.Parent = Background
+	Info.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Info.BackgroundTransparency = 1.000
+	Info.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Info.BorderSizePixel = 0
+	Info.Position = UDim2.new(0.263033181, 0, 0.865342677, 0)
+	Info.Size = UDim2.new(0, 200, 0, 19)
+	Info.Font = Enum.Font.Gotham
+	if info == "" then
+		Info.Text = "To use the free version of "..tostring(name).." you need a key. Click 'Get Key' button to get your key!"
+	else
+		Info.Text = info == nil and "To use the free version of "..tostring(name).." you need a key. Click 'Get Key' button to get your key!" or tostring(info)
+	end
+	Info.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Info.TextScaled = true
+	Info.TextSize = 14.000
+	Info.TextWrapped = true
+
+	local Topbar = Instance.new("Frame")
+	Topbar.Name = "Topbar"
+	Topbar.Parent = KeySystem
+	Topbar.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
+	Topbar.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Topbar.BorderSizePixel = 0
+	Topbar.Position = UDim2.new(0.342301905, 0, 0.325545162, 0)
+	Topbar.Size = UDim2.new(0, 422, 0, 35)
+
+	local UICorner_6 = Instance.new("UICorner")
+	UICorner_6.Parent = Topbar
+
+	local Extension = Instance.new("Frame")
+
+	Extension.Name = "Extension"
+	Extension.Parent = Topbar
+	Extension.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
+	Extension.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Extension.BorderSizePixel = 0
+	Extension.Position = UDim2.new(-0.0012999773, 0, 0.645527422, 0)
+	Extension.Size = UDim2.new(0, 422, 0, 12)
+
+	local Title = Instance.new("TextLabel")
+	Title.Name = "Title"
+	Title.Parent = Topbar
+	Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Title.BackgroundTransparency = 1.000
+	Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Title.BorderSizePixel = 0
+	Title.Position = UDim2.new(0.260663509, 0, 0.228571445, 0)
+	Title.Size = UDim2.new(0, 200, 0, 19)
+	Title.Font = Enum.Font.Gotham
+	Title.Text = tostring(name).." - <b>Key System</b>"
+	Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Title.TextScaled = true
+	Title.TextSize = 14.000
+	Title.TextWrapped = true
+
+
+	local CloseBtn = Instance.new("ImageButton")
+	CloseBtn.Parent = Topbar
+	CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	CloseBtn.BackgroundTransparency = 1.000
+	CloseBtn.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	CloseBtn.BorderSizePixel = 0
+	CloseBtn.Position = UDim2.new(0.917061567, 0, 0.22857143, 0)
+	CloseBtn.Size = UDim2.new(0, 21, 0, 19)
+	CloseBtn.Image = "rbxassetid://14050824076"
+	CloseBtn.ScaleType = Enum.ScaleType.Fit
+	
+	if discordInvite ~= "" then
+		local Discord = Instance.new("TextButton")
+		Discord.Name = "Discord"
+		Discord.Parent = Background
+		Discord.BackgroundColor3 = Color3.fromRGB(36, 36, 36)
+		Discord.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		Discord.BorderSizePixel = 0
+		Discord.Position = UDim2.new(0.317535549, 0, 0.663677096, 0)
+		Discord.Size = UDim2.new(0, 150, 0, 27)
+		Discord.Font = Enum.Font.Gotham
+		Discord.Text = "Discord Server"
+		Discord.TextColor3 = Color3.fromRGB(255, 255, 255)
+		Discord.TextSize = 14.000
+
+		local UICorner_5 = Instance.new("UICorner")
+		UICorner_5.Parent = Discord
+
+		Discord.MouseButton1Click:Connect(function()
+			JoinDiscord(discordInvite)
+		end)
+	else
+		Background.Size = UDim2.new(0, 350, 0, 205)
+	end
+	
+	function CloseGUI()
+		game:GetService("TweenService"):Create(Background, TweenInfo.new(0.45, Enum.EasingStyle.Linear), { Position = UDim2.new(0.5, 0, -1.5, 0) }):Play()
+		game:GetService("TweenService"):Create(Topbar, TweenInfo.new(0.45, Enum.EasingStyle.Linear), { Position = UDim2.new(0.5, 0, -1.5, 0) }):Play()
+		task.wait(0.45)
+		KeySystem:Destroy()
+		UIMade = false
+	end
+
+	CloseBtn.MouseButton1Click:Connect(function()
+		KeySystemUI.Closed = true;CloseGUI()
+	end)
+	
+	--loadstring(game:HttpGet("https://raw.githubusercontent.com/MaGiXxScripter0/keysystemv2api/master/setup.lua"))()
+	--local KeySystem = _G.KSS.classes.keysystem.new(applicationName)
+	local KeyLibrary = loadstring(game:HttpGet('https://raw.githubusercontent.com/MaGiXxScripter0/keysystemv2api/master/setup_obf.lua'))()
+	local KeySystem = KeyLibrary.new(applicationName)
+	local KeyClass = KeySystem:key()
+	local CurrentKeyInput = ""
+	local SavedKeyPath = applicationName.."_key.txt"
+	function iskeyvalid(key_input)
+		if key_input ~= nil then CurrentKeyInput = key_input end
+
+		KeyClass = KeySystem:key()
+		if KeyClass.is_banned then return false end
+		return (KeyClass.finish and KeySystem:verifyKey(CurrentKeyInput))
+	end
+	function KeySystemUI.Finished() return iskeyvalid() end
+
+	if readfile and writefile then
+		EnterKey.Text = "Checking saved key..."
+		local success_file, error_file = pcall(function()
+			local is_key_present = isfile(SavedKeyPath);
+
+			if is_key_present == true then
+				local key_file_txt = readfile(SavedKeyPath)
+				local onl_key = iskeyvalid(key_file_txt)
+
+				if onl_key then
+					CloseGUI()
+				else
+					delfile(SavedKeyPath)
+					EnterKey.Text = "Saved key is invalid."
+				end
+			end
+		end)
+		if error_file then
+			EnterKey.Text = "Failed to check saved key."
+			warn(error_file)
+		end
+		if EnterKey.Text ~= "Checking saved key..." then
+			task.delay(2, function()
+				EnterKey.Text = ""
+			end)
+		else
+			EnterKey.Text = ""
+		end
+	end
+
+	Checkey.MouseButton1Click:Connect(function()
+		local keyValid = iskeyvalid(EnterKey.Text)
+		if keyValid then
+			if EnterKey then writefile(SavedKeyPath, CurrentKeyInput) end
+			CloseGUI()
+		else
+			if KeyClass.is_banned then EnterKey.Text = "You are banned!" else EnterKey.Text = "Invalid/Expired key!" end
+			game:GetService("TweenService"):Create(EnterKey, TweenInfo.new(0.2, Enum.EasingStyle.Quad), { TextColor3 = Color3.fromRGB(197, 0, 0) }):Play()
+			task.wait(0.15)
+			game:GetService("TweenService"):Create(EnterKey, TweenInfo.new(0.5, Enum.EasingStyle.Quad), { TextColor3 = Color3.new(255,255,255) }):Play()
+			EnterKey.Text = ""
+		end
+	end)
+
+	GetKey.MouseButton1Click:Connect(function()
+		EnterKey.Text = KeySystem:getKeyURL()
+		KeySystem:copyGetKeyURL()
+	end)
+end
+
+function KeySystemUI.New(settings) 
+	settings = Validate({
+		ApplicationName = "",
+		Name = "",
+		Info = "",
+		DiscordInvite = ""
+	}, settings or {})
+
+	if typeof(settings.ApplicationName) ~= "string" then warn("ApplicationName needs to be a string!") return end
+	if settings.ApplicationName == "" then warn("ApplicationName can't be empty!") return end
+	MakeUi(settings.ApplicationName, settings.Name, settings.Info, settings.DiscordInvite)
+end
+
+return KeySystemUI
+end
+
+
+
